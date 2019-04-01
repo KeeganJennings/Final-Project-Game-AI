@@ -23,11 +23,11 @@ public class MinotaurAI : FSM
     protected override void Initialize()
     {
         curState = MinotaurState.Patrol;
-        curSpeed = 10f;
-        wallDistance = 40f;
+        curSpeed = 2.5f;
+        wallDistance = 1.5f;
     }
 
-    protected override void FSMUpdate()
+    protected override void FSMFixedUpdate()
     {
         switch(curState)
         {
@@ -66,14 +66,15 @@ public class MinotaurAI : FSM
     private void UpdatePatrolState()
     {
         RaycastHit hit;
-        Ray wallIntercept = new Ray(transform.position, Vector3.forward);
+        Ray wallIntercept = new Ray(transform.position,  this.transform.forward * wallDistance);
 
-        Debug.DrawRay(transform.position, Vector3.forward * wallDistance);
+        Debug.DrawRay(transform.position, this.transform.forward * wallDistance);
 
+        
         if (Physics.Raycast(wallIntercept, out hit, wallDistance))
-        { 
+        {
             if (hit.collider.tag == "Wall")
-            {
+            { 
                 MakeTurnDecision();
             }
         }
@@ -85,15 +86,16 @@ public class MinotaurAI : FSM
 
     private void MakeTurnDecision()
     {
-        if(UnityEngine.Random.Range(0, 1) == 0)
-        {
-            transform.Rotate(0, 90, 0, Space.Self);
-        }
-        else
-        {
-            transform.Rotate(0, -90, 0, Space.Self);
-        }
+        float yRotation = 90;
 
+        if (UnityEngine.Random.Range(0, 2) == 0)
+        {
+            transform.eulerAngles += new Vector3(transform.eulerAngles.x, yRotation, transform.eulerAngles.z);
+        }
+       else
+       {
+                transform.eulerAngles += new Vector3(transform.eulerAngles.x, -yRotation, transform.eulerAngles.z);
+       }
     }
 
     private void MoveForward()
