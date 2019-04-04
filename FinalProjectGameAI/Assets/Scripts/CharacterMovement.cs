@@ -6,21 +6,30 @@ public class CharacterMovement : MonoBehaviour
 {
     public float moveSpeed;
 
-    private Rigidbody rb;
     // Start is called before the first frame update
     void Start()
     {
-        rb.GetComponent<Rigidbody>();
+        
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
-
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-
-        rb.AddForce(movement * moveSpeed);
+        if(Input.GetKey("w"))
+        {
+            transform.position += transform.TransformDirection(Vector3.forward) * Time.deltaTime * moveSpeed;
+        }
+        else if (Input.GetKey("s"))
+        {
+            transform.position -= transform.TransformDirection(Vector3.forward) * Time.deltaTime * moveSpeed;
+        }
+        else if (Input.GetKey("a"))
+        {
+            transform.position += transform.TransformDirection(Vector3.left) * Time.deltaTime * moveSpeed;
+        }
+        else if (Input.GetKey("d"))
+        {
+            transform.position -= transform.TransformDirection(Vector3.left) * Time.deltaTime * moveSpeed;
+        }
     }
 }

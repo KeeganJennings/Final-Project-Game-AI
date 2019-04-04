@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class MinotaurAI : FSM
 {
+    //State Enum
     public enum MinotaurState
     {
         Patrol,
@@ -13,20 +14,36 @@ public class MinotaurAI : FSM
         Attack
     }
 
+    //State
     public MinotaurState curState;
 
+    //Needed Variables for movement
     private float curSpeed;
     private float wallDistance;
 
+    //A* Variables
+    Vector3 currentLocation; //Current Actor Location
+    Vector3 start; //Starting Location
+    Vector3 target; //Where we are heading
+    List<Vector3> openList = new List<Vector3>(); //Possible places to move
+    List<Vector3> closedList = new List<Vector3>(); //Places the agent has moved to
+    public List<LocationNodes> doneList = new List<LocationNodes>(); //Most effecient move list 
+
+
+    //Rigid Body
     new private Rigidbody rigidbody;
 
+    //Things needed from the beginning
     protected override void Initialize()
     {
         curState = MinotaurState.Patrol;
         curSpeed = 2.5f;
         wallDistance = 1.5f;
+        start = this.transform.position;
+        openList.Add(start);
     }
 
+    //Updating State
     protected override void FSMFixedUpdate()
     {
         switch(curState)
@@ -84,6 +101,8 @@ public class MinotaurAI : FSM
         }
     }
 
+
+    //Randomly Choosing what direction to go
     private void MakeTurnDecision()
     {
         float yRotation = 90;
@@ -98,8 +117,16 @@ public class MinotaurAI : FSM
        }
     }
 
+
+    //Moving Forward for patroling
     private void MoveForward()
     {
         transform.Translate(Vector3.forward * Time.deltaTime * curSpeed);
+    }
+
+    //Compute H Score
+    private static int ComputeHScore(int x, int y, int targetX, int targetY)
+    {
+        return Math.Abs(targetX - x) + Math.Abs(targetY - y);
     }
 }
