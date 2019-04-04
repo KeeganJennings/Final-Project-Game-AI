@@ -11,5 +11,14 @@ public class LocationNodes : MonoBehaviour
     public void CallParent()
     {
         MinotaurAI.doneList.Add(this);
+
+        if(parent != null)
+        {
+            parent.CallParent();
+        }
+        else
+        {
+
+        }
     }
 }

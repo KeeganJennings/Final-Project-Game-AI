@@ -27,7 +27,7 @@ public class MinotaurAI : FSM
     Vector3 target; //Where we are heading
     List<Vector3> openList = new List<Vector3>(); //Possible places to move
     List<Vector3> closedList = new List<Vector3>(); //Places the agent has moved to
-    public List<LocationNodes> doneList = new List<LocationNodes>(); //Most effecient move list 
+    public static List<LocationNodes> doneList = new List<LocationNodes>(); //Most effecient move list 
 
 
     //Rigid Body
@@ -122,11 +122,13 @@ public class MinotaurAI : FSM
     private void MoveForward()
     {
         transform.Translate(Vector3.forward * Time.deltaTime * curSpeed);
-    }
+    } 
 
     //Compute H Score
     private static int ComputeHScore(int x, int y, int targetX, int targetY)
     {
         return Math.Abs(targetX - x) + Math.Abs(targetY - y);
     }
+
+    public static void 
 }
