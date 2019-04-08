@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,14 +23,14 @@ public class MinotaurAI : FSM
     //Needed Variables for movement
     private float curSpeed;
     private float wallDistance;
+    private bool isInSite;
 
     //A* Variables
-    Vector3 currentLocation; //Current Actor Location
-    Vector3 start; //Starting Location
-    Vector3 target; //Where we are heading
-    List<Vector3> openList = new List<Vector3>(); //Possible places to move
-    List<Vector3> closedList = new List<Vector3>(); //Places the agent has moved to
-    public static List<LocationNodes> doneList = new List<LocationNodes>(); //Most effecient move list 
+    public static PrioritQueue openList;
+    public static HashSet<Node> closedList;
+    private Node startNode { get; set; }
+    private Node goalNode { get; set; }
+    public ArrayList pathArray;
 
 
     //Rigid Body
@@ -39,8 +42,7 @@ public class MinotaurAI : FSM
         curState = MinotaurState.Patrol;
         curSpeed = 2.5f;
         wallDistance = 1.5f;
-        start = this.transform.position;
-        openList.Add(start);
+        pathArray = new ArrayList();
     }
 
     //Updating State
@@ -67,7 +69,12 @@ public class MinotaurAI : FSM
 
     private void UpdateSightState()
     {
-        
+        var player = GameObject.Find("Player");
+        startNode = new Node(GridManager.instance.GetGridCellCenter(GridManager.instance.GetGridIndex(this.transform.position)));
+
+        goalNode = new Node(GridManager.instance.GetGridCellCenter(GridManager.instance.GetGridIndex(player.transform.position)));
+
+        FindPath(startNode, goalNode);
     }
 
     private void UpdateSmellState()
@@ -122,13 +129,79 @@ public class MinotaurAI : FSM
     private void MoveForward()
     {
         transform.Translate(Vector3.forward * Time.deltaTime * curSpeed);
-    } 
-
-    //Compute H Score
-    private static int ComputeHScore(int x, int y, int targetX, int targetY)
-    {
-        return Math.Abs(targetX - x) + Math.Abs(targetY - y);
     }
 
-    public static void 
+    private static float HEstimateCost(Node curNode, Node goalNode)
+    {
+        Vector3 vecCost = curNode.position - goalNode.position;
+        return vecCost.magnitude;
+    }
+
+    public static ArrayList FindPath(Node start, Node goal)
+    {
+        openList = new PrioritQueue();
+        openList.Push(start);
+
+        start.nodeTotalCost = 0.0f;
+        start.estimatedCost = HEstimateCost(start, goal);
+
+        closedList = new HashSet<Node>();
+        Node node = null;
+
+        while(openList.Length != 0)
+        {
+            node = openList.First();
+            if(node.position == goal.position)
+            {
+                return CalculatePath(node);
+            }
+
+            ArrayList neighbors = new ArrayList();
+
+            GridManager.instance.GetNeighbors(node, neighbors);
+
+            for(int i = 0; i < neighbors.Count; i++)
+            {
+                Node neighborNode = (Node)neighbors[i];
+                if(!closedList.Contains(neighborNode))
+                {
+                    float cost = HEstimateCost(node, neighborNode);
+
+                    float totalCost = node.nodeTotalCost + cost;
+                    float neighborNodeEstCost = HEstimateCost(neighborNode, goal);
+
+                    neighborNode.nodeTotalCost = totalCost;
+                    neighborNode.parent = node;
+                    neighborNode.estimatedCost = totalCost + neighborNodeEstCost;
+
+                    if(!openList.Cointains(neighborNode))
+                    {
+                        openList.Push(neighborNode);
+                    }
+                }
+            }
+            closedList.Add(node);
+            openList.Remove(node);
+        }
+
+        if(node.position != goal.position)
+        {
+            Debug.LogError("Goal Not Found");
+            return null;
+        }
+
+        return CalculatePath(node);
+    }
+
+    private static ArrayList CalculatePath(Node node)
+    {
+        ArrayList list = new ArrayList();
+        while(node != null)
+        {
+            list.Add(node);
+            node = node.parent;
+        }
+        list.Reverse();
+        return list;
+    }
 }

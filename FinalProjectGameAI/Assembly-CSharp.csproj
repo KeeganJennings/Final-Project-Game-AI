@@ -62,8 +62,10 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\CharacterMovement.cs" />
     <Compile Include="Assets\Scripts\FSM.cs" />
-    <Compile Include="Assets\Scripts\LocationNode.cs" />
+    <Compile Include="Assets\Scripts\GridManager.cs" />
     <Compile Include="Assets\Scripts\MinotaurAI.cs" />
+    <Compile Include="Assets\Scripts\Node.cs" />
+    <Compile Include="Assets\Scripts\PriorityQueue.cs" />
     <Compile Include="Assets\Scripts\Sight.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>D:/Main Folder/School/Final-Project-Game-AI/FinalProjectGameAI/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
