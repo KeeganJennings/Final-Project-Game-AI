@@ -23,14 +23,14 @@ public class MinotaurAI : FSM
     //Needed Variables for movement
     private float curSpeed;
     private float wallDistance;
-    private bool isInSite;
 
     //A* Variables
-    public static PrioritQueue openList;
-    public static HashSet<Node> closedList;
-    private Node startNode { get; set; }
-    private Node goalNode { get; set; }
+    public Node startNode { get; set; }
+    public Node goalNode { get; set; }
+    public Transform startPos, endPos;
+    [SerializeField]
     public ArrayList pathArray;
+    GameObject player;
 
 
     //Rigid Body
@@ -43,6 +43,7 @@ public class MinotaurAI : FSM
         curSpeed = 2.5f;
         wallDistance = 1.5f;
         pathArray = new ArrayList();
+        player = GameObject.FindGameObjectWithTag("End");
     }
 
     //Updating State
@@ -64,17 +65,14 @@ public class MinotaurAI : FSM
                 break;
         }
 
+        SetPath();
+
         elaspedTime += Time.deltaTime;
     }
 
     private void UpdateSightState()
     {
-        var player = GameObject.Find("Player");
-        startNode = new Node(GridManager.instance.GetGridCellCenter(GridManager.instance.GetGridIndex(this.transform.position)));
-
-        goalNode = new Node(GridManager.instance.GetGridCellCenter(GridManager.instance.GetGridIndex(player.transform.position)));
-
-        FindPath(startNode, goalNode);
+        FollowPath();
     }
 
     private void UpdateSmellState()
@@ -131,77 +129,51 @@ public class MinotaurAI : FSM
         transform.Translate(Vector3.forward * Time.deltaTime * curSpeed);
     }
 
-    private static float HEstimateCost(Node curNode, Node goalNode)
+    private void SetPath()
     {
-        Vector3 vecCost = curNode.position - goalNode.position;
-        return vecCost.magnitude;
+
+        startPos = this.transform;
+        endPos = player.transform;
+
+        startNode = new Node(GridManager.instance.GetGridCellCenter(GridManager.instance.GetGridIndex(startPos.position)));
+        goalNode = new Node(GridManager.instance.GetGridCellCenter(GridManager.instance.GetGridIndex(endPos.position)));
+
+        pathArray = AStar.FindPath(startNode, goalNode);
+
+        //for(int i = 0; i < pathArray.Count; i++)
+        //{
+        //    Node node = (Node)pathArray[i];
+        //    Debug.Log(goalNode.position);
+        //    Debug.Log(node.position);
+        //}
+        
     }
 
-    public static ArrayList FindPath(Node start, Node goal)
+    private void FollowPath()
     {
-        openList = new PrioritQueue();
-        openList.Push(start);
 
-        start.nodeTotalCost = 0.0f;
-        start.estimatedCost = HEstimateCost(start, goal);
+    }
 
-        closedList = new HashSet<Node>();
-        Node node = null;
-
-        while(openList.Length != 0)
+    private void OnDrawGizmos()
+    {
+        if(pathArray == null)
         {
-            node = openList.First();
-            if(node.position == goal.position)
+            return;
+        }
+
+        if(pathArray.Count > 0)
+        {
+            int index = 1;
+
+            foreach(Node node in pathArray)
             {
-                return CalculatePath(node);
-            }
-
-            ArrayList neighbors = new ArrayList();
-
-            GridManager.instance.GetNeighbors(node, neighbors);
-
-            for(int i = 0; i < neighbors.Count; i++)
-            {
-                Node neighborNode = (Node)neighbors[i];
-                if(!closedList.Contains(neighborNode))
+                if(index < pathArray.Count)
                 {
-                    float cost = HEstimateCost(node, neighborNode);
-
-                    float totalCost = node.nodeTotalCost + cost;
-                    float neighborNodeEstCost = HEstimateCost(neighborNode, goal);
-
-                    neighborNode.nodeTotalCost = totalCost;
-                    neighborNode.parent = node;
-                    neighborNode.estimatedCost = totalCost + neighborNodeEstCost;
-
-                    if(!openList.Cointains(neighborNode))
-                    {
-                        openList.Push(neighborNode);
-                    }
+                    Node nextNode = (Node)pathArray[index];
+                    Debug.DrawLine(node.position, nextNode.position, Color.red);
+                    index++;
                 }
             }
-            closedList.Add(node);
-            openList.Remove(node);
         }
-
-        if(node.position != goal.position)
-        {
-            Debug.LogError("Goal Not Found");
-            return null;
-        }
-
-        return CalculatePath(node);
-    }
-
-    private static ArrayList CalculatePath(Node node)
-    {
-        ArrayList list = new ArrayList();
-        while(node != null)
-        {
-            list.Add(node);
-            node = node.parent;
-        }
-        list.Reverse();
-        return list;
     }
 }

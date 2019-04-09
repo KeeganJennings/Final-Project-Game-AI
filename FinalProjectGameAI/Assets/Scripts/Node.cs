@@ -10,7 +10,15 @@ public class Node : IComparable
     public bool bObstacle;
     public Node parent;
     public Vector3 position;
-    
+
+    public Node()
+    {
+        this.estimatedCost = 0.0f;
+        this.nodeTotalCost = 1.0f;
+        this.bObstacle = false;
+        this.parent = null;
+    }
+
     public Node(Vector3 pos)
     {
         this.estimatedCost = 0.0f;
@@ -27,19 +35,19 @@ public class Node : IComparable
 
     public int CompareTo(object obj)
     {
-        int returnValue = 0;
+        
         Node node = (Node)obj;
 
         if(this.estimatedCost < node.estimatedCost)
         {
-            returnValue = -1;
+            return -1;
         }
 
         if(this.estimatedCost > node.estimatedCost)
         {
-            returnValue = 0;
+            return 1;
         }
 
-        return returnValue;
+        return 0;
     }
 }
