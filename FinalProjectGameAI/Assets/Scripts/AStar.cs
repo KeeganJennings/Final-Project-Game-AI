@@ -41,18 +41,21 @@ public class AStar
                 Node neighborNode = (Node)neighbors[i];
                 if (!closedList.Contains(neighborNode))
                 {
-                    float cost = HEstimateCost(node, neighborNode);
-
-                    float totalCost = node.nodeTotalCost + cost;
-                    float neighborNodeEstCost = HEstimateCost(neighborNode, goal);
-
-                    neighborNode.nodeTotalCost = totalCost;
-                    neighborNode.parent = node;
-                    neighborNode.estimatedCost = totalCost + neighborNodeEstCost;
-
-                    if (!openList.Cointains(neighborNode))
+                    if (!neighborNode.bObstacle)
                     {
-                        openList.Push(neighborNode);
+                        float cost = HEstimateCost(node, neighborNode);
+
+                        float totalCost = node.nodeTotalCost + cost;
+                        float neighborNodeEstCost = HEstimateCost(neighborNode, goal);
+
+                        neighborNode.nodeTotalCost = totalCost;
+                        neighborNode.parent = node;
+                        neighborNode.estimatedCost = totalCost + neighborNodeEstCost;
+
+                        if (!openList.Cointains(neighborNode))
+                        {
+                            openList.Push(neighborNode);
+                        }
                     }
                 }
             }

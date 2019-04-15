@@ -29,6 +29,9 @@ public class GridManager : MonoBehaviour
     public bool showGrid = true;
     public bool showObstableBlocks = true;
 
+    private RaycastHit hit;
+    private bool b_Hit;
+    private int layerMask = 9;
     private Vector3 origin = new Vector3();
     private GameObject[] obstacleList;
     public Node[,] nodes { get; set; }
@@ -59,12 +62,101 @@ public class GridManager : MonoBehaviour
         }
         if(obstacleList != null && obstacleList.Length > 0)
         {
-            foreach(GameObject data in obstacleList)
+            foreach (GameObject data in obstacleList)
             {
                 int indexCell = GetGridIndex(data.transform.position);
                 int col = GetColumn(indexCell);
                 int row = GetRow(indexCell);
                 nodes[row, col].MarkAsObstacle();
+                CheckSurroundingForObstacles(col, row);
+            }
+        }
+    }
+
+    private void CheckSurroundingForObstacles(int col, int row)
+    {
+        
+        b_Hit = Physics.BoxCast(nodes[row + 1, col].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
+        if (b_Hit)
+        {
+            if (hit.collider.tag == "Wall")
+            {
+                nodes[row + 1, col].MarkAsObstacle();
+                Debug.Log(nodes[row + 1, col] + "was marked as obstacle");
+            }
+        }
+
+        b_Hit = Physics.BoxCast(nodes[row - 1, col].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
+        if (b_Hit)
+        {
+            if (hit.collider.tag == "Wall")
+            {
+                nodes[row - 1, col].MarkAsObstacle();
+                Debug.Log(nodes[row + 1, col] + "was marked as obstacle");
+            }
+        }
+
+        b_Hit = Physics.BoxCast(nodes[row, col + 1].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
+        if (b_Hit)
+        {
+            if (hit.collider.tag == "Wall")
+            {
+                nodes[row, col + 1].MarkAsObstacle();
+                Debug.Log(nodes[row, col + 1] + "was marked as obstacle");
+            }
+        }
+
+        b_Hit = Physics.BoxCast(nodes[row, col - 1].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
+        if (b_Hit)
+        {
+            if (hit.collider.tag == "Wall")
+            {
+                nodes[row, col - 1].MarkAsObstacle();
+                Debug.Log(nodes[row, col - 1] + "was marked as obstacle");
+            }
+        }
+        CheckTertiarySquaresForObstacles(col, row);
+    }
+
+    private void CheckTertiarySquaresForObstacles(int col, int row)
+    {
+        b_Hit = Physics.BoxCast(nodes[row + 2, col].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
+        if (b_Hit)
+        {
+            if (hit.collider.tag == "Wall")
+            {
+                nodes[row + 2, col].MarkAsObstacle();
+                Debug.Log(nodes[row + 2, col] + "was marked as obstacle");
+            }
+        }
+
+        b_Hit = Physics.BoxCast(nodes[row - 2, col].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
+        if (b_Hit)
+        {
+            if (hit.collider.tag == "Wall")
+            {
+                nodes[row - 2, col].MarkAsObstacle();
+                Debug.Log(nodes[row - 2, col] + "was marked as obstacle");
+            }
+        }
+
+        b_Hit = Physics.BoxCast(nodes[row, col + 2].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
+        if (b_Hit)
+        {
+            if (hit.collider.tag == "Wall")
+            {
+                nodes[row, col + 2].MarkAsObstacle();
+                Debug.Log(nodes[row, col + 2] + "was marked as obstacle");
+            }
+        }
+
+        b_Hit = Physics.BoxCast(nodes[row, col - 2].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
+        if (b_Hit)
+        {
+            if (hit.collider.tag == "Wall")
+            {
+                nodes[row, col - 2].MarkAsObstacle();
+                Debug.Log(nodes[row, col - 2] + "was marked as obstacle");
             }
         }
     }
@@ -168,9 +260,12 @@ public class GridManager : MonoBehaviour
             Vector3 cellSize = new Vector3(gridCellSize, 1.0f, gridCellSize);
             if(obstacleList != null && obstacleList.Length > 0)
             {
-                foreach(GameObject data in obstacleList)
+                foreach (GameObject data in obstacleList)
                 {
-                    Gizmos.DrawCube(GetGridCellCenter(GetGridIndex(data.transform.position)), cellSize);
+                    if (data.GetComponent<BoxCollider>() != null)
+                    {
+                        Gizmos.DrawCube(data.GetComponent<BoxCollider>().bounds.center, data.GetComponent<BoxCollider>().bounds.size);
+                    }
                 }
             }
         }

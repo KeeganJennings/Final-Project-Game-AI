@@ -9,6 +9,7 @@ TagManager:
   - Floor
   - Start
   - End
+  - Scent
   layers:
   - Default
   - TransparentFX
@@ -19,7 +20,7 @@ TagManager:
   - 
   - 
   - PostProcessing
-  - 
+  - Walls
   - 
   - 
   - 

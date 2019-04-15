@@ -5,6 +5,9 @@ using UnityEngine;
 public class CharacterMovement : MonoBehaviour
 {
     public float moveSpeed;
+    private float timeSinceLastDeployedCollider;
+
+    public GameObject scentPrefab;
 
     // Start is called before the first frame update
     void Start()
@@ -31,5 +34,24 @@ public class CharacterMovement : MonoBehaviour
         {
             transform.position -= transform.TransformDirection(Vector3.left) * Time.deltaTime * moveSpeed;
         }
+
+        UpdateTime();
+        if(timeSinceLastDeployedCollider >= 3)
+        {
+            SpawnScentCollider();
+            timeSinceLastDeployedCollider = 0;
+        }
+    }
+
+    private void UpdateTime()
+    {
+        timeSinceLastDeployedCollider += Time.deltaTime;
+    }
+
+    private void SpawnScentCollider()
+    {
+        GameObject scent = Instantiate(scentPrefab);
+
+        scent.transform.position = this.transform.position;
     }
 }
