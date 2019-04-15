@@ -115,50 +115,6 @@ public class GridManager : MonoBehaviour
                 Debug.Log(nodes[row, col - 1] + "was marked as obstacle");
             }
         }
-        CheckTertiarySquaresForObstacles(col, row);
-    }
-
-    private void CheckTertiarySquaresForObstacles(int col, int row)
-    {
-        b_Hit = Physics.BoxCast(nodes[row + 2, col].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
-        if (b_Hit)
-        {
-            if (hit.collider.tag == "Wall")
-            {
-                nodes[row + 2, col].MarkAsObstacle();
-                Debug.Log(nodes[row + 2, col] + "was marked as obstacle");
-            }
-        }
-
-        b_Hit = Physics.BoxCast(nodes[row - 2, col].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
-        if (b_Hit)
-        {
-            if (hit.collider.tag == "Wall")
-            {
-                nodes[row - 2, col].MarkAsObstacle();
-                Debug.Log(nodes[row - 2, col] + "was marked as obstacle");
-            }
-        }
-
-        b_Hit = Physics.BoxCast(nodes[row, col + 2].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
-        if (b_Hit)
-        {
-            if (hit.collider.tag == "Wall")
-            {
-                nodes[row, col + 2].MarkAsObstacle();
-                Debug.Log(nodes[row, col + 2] + "was marked as obstacle");
-            }
-        }
-
-        b_Hit = Physics.BoxCast(nodes[row, col - 2].position, transform.localScale, transform.forward, out hit, transform.rotation, layerMask);
-        if (b_Hit)
-        {
-            if (hit.collider.tag == "Wall")
-            {
-                nodes[row, col - 2].MarkAsObstacle();
-                Debug.Log(nodes[row, col - 2] + "was marked as obstacle");
-            }
-        }
     }
 
     public Vector3 GetGridCellCenter(int index)
