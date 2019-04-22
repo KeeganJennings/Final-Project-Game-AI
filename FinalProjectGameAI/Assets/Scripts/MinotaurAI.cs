@@ -23,6 +23,9 @@ public class MinotaurAI : FSM
     //Needed Variables for movement
     private float curSpeed;
     private float wallDistance;
+    private float timeSinceLastMove = 0;
+    private int index = 0;
+   
 
     //A* Variables
     public Node startNode { get; set; }
@@ -49,7 +52,7 @@ public class MinotaurAI : FSM
     //Updating State
     protected override void FSMFixedUpdate()
     {
-        switch(curState)
+        switch (curState)
         {
             case MinotaurState.Patrol:
                 UpdatePatrolState();
@@ -77,27 +80,31 @@ public class MinotaurAI : FSM
 
     private void UpdateSmellState()
     {
-        
+
     }
 
     private void UpdateAttackState()
     {
-        
+        Attack();
     }
 
     private void UpdatePatrolState()
     {
         RaycastHit hit;
-        Ray wallIntercept = new Ray(transform.position,  this.transform.forward * wallDistance);
+        Ray wallIntercept = new Ray(transform.position, this.transform.forward * wallDistance);
 
         Debug.DrawRay(transform.position, this.transform.forward * wallDistance);
 
-        
+
         if (Physics.Raycast(wallIntercept, out hit, wallDistance))
         {
             if (hit.collider.tag == "Wall")
-            { 
+            {
                 MakeTurnDecision();
+            }
+            if(hit.collider.tag == "Scent")
+            {
+                curState = MinotaurState.Smell;
             }
         }
         else
@@ -116,10 +123,10 @@ public class MinotaurAI : FSM
         {
             transform.eulerAngles += new Vector3(transform.eulerAngles.x, yRotation, transform.eulerAngles.z);
         }
-       else
-       {
-                transform.eulerAngles += new Vector3(transform.eulerAngles.x, -yRotation, transform.eulerAngles.z);
-       }
+        else
+        {
+            transform.eulerAngles += new Vector3(transform.eulerAngles.x, -yRotation, transform.eulerAngles.z);
+        }
     }
 
 
@@ -131,7 +138,6 @@ public class MinotaurAI : FSM
 
     private void SetPath()
     {
-
         startPos = this.transform;
         endPos = player.transform;
 
@@ -139,19 +145,50 @@ public class MinotaurAI : FSM
         goalNode = new Node(GridManager.instance.GetGridCellCenter(GridManager.instance.GetGridIndex(endPos.position)));
 
         pathArray = AStar.FindPath(startNode, goalNode);
-
-        //for(int i = 0; i < pathArray.Count; i++)
-        //{
-        //    Node node = (Node)pathArray[i];
-        //    Debug.Log(goalNode.position);
-        //    Debug.Log(node.position);
-        //}
-        
     }
 
     private void FollowPath()
     {
+        if (index != pathArray.Count && timeSinceLastMove >= .075)
+        {
+            Node curNode = FindNextNode();
 
+            Vector3 moveTowardsVector = new Vector3(curNode.position.x, transform.position.y, curNode.position.z);
+
+            transform.position = Vector3.MoveTowards(transform.position, moveTowardsVector, curSpeed - 2);
+
+            Debug.Log("I Am Moving + " + curNode.position);
+
+            timeSinceLastMove = 0;
+
+            SetPath();
+        }
+        else if(index == pathArray.Count)
+        {
+            curState = MinotaurState.Attack;
+            index = 0;
+        }
+
+        timeSinceLastMove += Time.deltaTime;
+        Debug.Log(timeSinceLastMove);
+    }
+
+    private Node FindNextNode()
+    {
+        Node node = new Node();
+
+        if(index <= pathArray.Count)
+        {
+            node = (Node)pathArray[index];
+        }
+
+        if(this.transform.position.x == node.position.x && this.transform.position.z == node.position.z)
+        {
+            index++;
+            Debug.Log("Updated index");
+        }
+
+        return node;
     }
 
     private void OnDrawGizmos()
@@ -175,5 +212,12 @@ public class MinotaurAI : FSM
                 }
             }
         }
+    }
+
+    private void Attack()
+    {
+
+
+        curState = MinotaurState.Patrol;
     }
 }

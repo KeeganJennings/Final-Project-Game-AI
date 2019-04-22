@@ -18,12 +18,18 @@ public class Sight : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log(other.gameObject.tag);
-        if(other.gameObject.tag == "Player")
+        //Debug.Log(other.gameObject.tag);
+        if(other.gameObject.tag == "End")
         {
             MinotaurAI parentAI = GetComponentInParent<MinotaurAI>();
 
             parentAI.curState = MinotaurAI.MinotaurState.Sight;
+        }
+        else
+        {
+            MinotaurAI parentAI = GetComponentInParent<MinotaurAI>();
+
+            parentAI.curState = MinotaurAI.MinotaurState.Patrol;
         }
     }
 }

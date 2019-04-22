@@ -68,7 +68,7 @@ public class GridManager : MonoBehaviour
                 int col = GetColumn(indexCell);
                 int row = GetRow(indexCell);
                 nodes[row, col].MarkAsObstacle();
-                CheckSurroundingForObstacles(col, row);
+                //CheckSurroundingForObstacles(col, row);
             }
         }
     }
