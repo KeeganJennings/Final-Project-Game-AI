@@ -25,6 +25,8 @@ public class MinotaurAI : FSM
     private float wallDistance;
     private float timeSinceLastMove = 0;
     private int index = 0;
+    private float smoothTime = 0.3f;
+    private Vector3 velocity = Vector3.zero;
    
 
     //A* Variables
@@ -80,7 +82,7 @@ public class MinotaurAI : FSM
 
     private void UpdateSmellState()
     {
-
+        FollowSmell();
     }
 
     private void UpdateAttackState()
@@ -216,8 +218,35 @@ public class MinotaurAI : FSM
 
     private void Attack()
     {
-
-
         curState = MinotaurState.Patrol;
+    }
+
+    private void FollowSmell()
+    {
+        GameObject[] smellNodes = GameObject.FindGameObjectsWithTag("Scent");
+        GameObject moveToNode = GetClosestSmell(smellNodes);
+
+        transform.position = Vector3.SmoothDamp(transform.position, moveToNode.transform.position, ref velocity, smoothTime);
+
+    }
+
+    private GameObject GetClosestSmell(GameObject[] nodes)
+    {
+        GameObject tMin = null;
+        float minDist = Mathf.Infinity;
+        Vector3 currentPos = this.transform.position;
+
+        foreach(GameObject node in nodes)
+        {
+            float dist = Vector3.Distance(node.transform.position, currentPos);
+
+            if(dist < minDist)
+            {
+                tMin = node;
+                minDist = dist;
+            }
+        }
+
+        return tMin;
     }
 }
