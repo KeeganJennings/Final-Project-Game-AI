@@ -220,7 +220,7 @@ public class MinotaurAI : FSM
     {
         curState = MinotaurState.Patrol;
     }
-
+    //Remove Smell on Enter
     private void FollowSmell()
     {
         GameObject[] smellNodes = GameObject.FindGameObjectsWithTag("Scent");
